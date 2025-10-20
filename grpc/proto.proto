@@ -1,12 +1,20 @@
 syntax = "proto3";
-option go_package = "ITUServer/grpc/proto";
+option go_package = "ChitChat/grpc/proto";
 
-message Students {
-    repeated string students = 1;
+message Chat {
+    string message = 1;
+    string author = 2;
+    int64 timestamp = 3;
 }
 
 message Empty {}
 
-service ITUDatabase {
-    rpc GetStudents (Empty) returns (Students) {};
+message User {
+    string name = 4;
+}
+
+service ChitChatService {
+    rpc Join (User) returns (stream Chat) {};
+    rpc SendChat (Chat) returns (Empty) {};
+    rpc Leave (User) returns (Empty) {};
 }

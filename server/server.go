@@ -1,42 +1,45 @@
 package main
 
 import (
-	proto "ITUServer/grpc"
+	proto "ChitChat/grpc"
 	"context"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 )
 
-type ITU_databaseServer struct {
-	proto.UnimplementedITUDatabaseServer
-	students []string
+type Server struct {
+	proto.UnimplementedChitChatServiceServer
 }
 
-func (s *ITU_databaseServer) GetStudents(ctx context.Context, in *proto.Empty) (*proto.Students, error) {
-	return &proto.Students{Students: s.students}, nil
+func (s *Server) Join(in *proto.User, stream proto.ChitChatService_JoinServer) error {
+	for {
+		chat := proto.Chat{ Author: in.Name, Message: "Joined the server"}
+		stream.Send(&chat)
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func (s *Server) SendChat(ctx context.Context, in *proto.Chat) (*proto.Empty, error) {
+	return &proto.Empty{}, nil;
 }
 
 func main() {
-	server := &ITU_databaseServer{students: []string{}}
-	server.students = append(server.students, "John")
-	server.students = append(server.students, "Jane")
-	server.students = append(server.students, "Alice")
-	server.students = append(server.students, "Bob")
+	server := &Server{}
 
 	server.start_server()
 }
 
-func (s *ITU_databaseServer) start_server() {
+func (s *Server) start_server() {
 	grpcServer := grpc.NewServer()
 	listener, err := net.Listen("tcp", ":5050")
 	if err != nil {
 		log.Fatalf("Did not work")
 	}
 
-	proto.RegisterITUDatabaseServer(grpcServer, s)
-
+	proto.RegisterChitChatServiceServer(grpcServer, s)
 	err = grpcServer.Serve(listener)
 
 	if err != nil {
