@@ -2,16 +2,20 @@ package main
 
 import (
 	proto "ChitChat/grpc"
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+var timestamp int64
 
 func main() {
 	author := os.Args[1]
@@ -28,18 +32,34 @@ func main() {
 	stream, _ := client.Join(context.Background(), &user)
 	go recieve(stream)
 
-	select {}
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("\r> ")
+		text, _ := reader.ReadString('\n')
+		timestamp++
+		if strings.TrimSpace(text) == "/leave" {
+			client.Leave(context.Background(), &user)
+			return
+		} else {
+			chat := proto.Chat{Timestamp: timestamp, Author: author, Message: text[:min(len(text)-1, 128)]}
+			client.SendChat(context.Background(), &chat)
+		}
+
+	}
 }
 
 func recieve(stream grpc.ServerStreamingClient[proto.Chat]) {
-out:
 	for {
 		chat, err := stream.Recv()
 
 		if err == io.EOF {
-			break out
+			fmt.Println("\rStream closed")
+			os.Exit(0)
 		}
 
-		fmt.Println("[" + strconv.Itoa(int(chat.Timestamp)) + "] " + chat.Author + ": " + chat.Message)
+		timestamp = max(timestamp, chat.Timestamp)
+
+		fmt.Println("\r[" + strconv.Itoa(int(chat.Timestamp)) + "] " + chat.Author + ": " + chat.Message)
+		fmt.Print("\r> ")
 	}
 }

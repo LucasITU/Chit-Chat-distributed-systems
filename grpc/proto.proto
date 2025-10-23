@@ -11,6 +11,7 @@ message Empty {}
 
 message User {
     string name = 4;
+    int timestamp = 5;
 }
 
 service ChitChatService {
