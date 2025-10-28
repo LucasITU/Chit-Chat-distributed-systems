@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var timestamp int64
+var timestamp chan int64 //use channel for this var
 
 func main() {
 	author := os.Args[1]
@@ -29,6 +29,9 @@ func main() {
 
 	user := proto.User{Name: author}
 
+	timestamp = make(chan int64, 1)
+	timestamp <- 0
+
 	stream, _ := client.Join(context.Background(), &user)
 	go recieve(stream)
 
@@ -36,12 +39,15 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("\r> ")
 		text, _ := reader.ReadString('\n')
-		timestamp++
+
+		temp_timestamp := <-timestamp + 1
+		timestamp <- temp_timestamp
+
 		if strings.TrimSpace(text) == "/leave" {
 			client.Leave(context.Background(), &user)
 			return
 		} else {
-			chat := proto.Chat{Timestamp: timestamp, Author: author, Message: text[:min(len(text)-1, 128)]}
+			chat := proto.Chat{Timestamp: temp_timestamp, Author: author, Message: text[:min(len(text)-1, 128)]}
 			client.SendChat(context.Background(), &chat)
 		}
 
@@ -57,7 +63,8 @@ func recieve(stream grpc.ServerStreamingClient[proto.Chat]) {
 			os.Exit(0)
 		}
 
-		timestamp = max(timestamp, chat.Timestamp)
+		temp_timestamp := max(<-timestamp, chat.Timestamp) + 1
+		timestamp <- temp_timestamp
 
 		fmt.Println("\r[" + strconv.Itoa(int(chat.Timestamp)) + "] " + chat.Author + ": " + chat.Message)
 		fmt.Print("\r> ")

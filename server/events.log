@@ -1,0 +1,12 @@
+2025/10/28 17:26:26 [Timestamp:0] [Component:Server] [EventType:Start] [Identifier:] 
+2025/10/28 17:26:29 [Timestamp:1] [Component:Client] [EventType:Join] [Identifier:client-1] 
+2025/10/28 17:26:29 [Timestamp:1] [Component:Client] [EventType:Recieve] [Identifier:Server] message:"Participant client-1 joined Chit Chat at logical time 1"  author:"Server"  timestamp:1
+2025/10/28 17:26:29 [Timestamp:2] [Component:Server] [EventType:Delivery] [Identifier:client-1] 
+2025/10/28 17:26:38 [Timestamp:3] [Component:Client] [EventType:Join] [Identifier:client-2] 
+2025/10/28 17:26:38 [Timestamp:3] [Component:Client] [EventType:Recieve] [Identifier:Server] message:"Participant client-2 joined Chit Chat at logical time 3"  author:"Server"  timestamp:3
+2025/10/28 17:26:38 [Timestamp:4] [Component:Server] [EventType:Delivery] [Identifier:client-2] 
+2025/10/28 17:26:38 [Timestamp:4] [Component:Server] [EventType:Delivery] [Identifier:client-1] 
+2025/10/28 17:26:46 [Timestamp:7] [Component:Client] [EventType:Recieve] [Identifier:client-1] message:"hello\r"  author:"client-1"  timestamp:6
+2025/10/28 17:26:46 [Timestamp:8] [Component:Server] [EventType:Delivery] [Identifier:client-1] 
+2025/10/28 17:26:46 [Timestamp:8] [Component:Server] [EventType:Delivery] [Identifier:client-2] 
+2025/10/28 17:28:06 [Timestamp:9] [Component:Server] [EventType:Stop] [Identifier:] 
